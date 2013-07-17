@@ -1,0 +1,24 @@
+{
+  "modinfoversion": 2,
+  "modlist": [{
+    "modid": "ItemRenderer",
+    "name": "RS485 Item Renderer",
+    "description": "Item Renderer is a small Minecraft modification that requires Forge. It does create rendered images from all of your Minecraft items and blocks.",
+    "version": "%VERSION%",
+    "mcversion": "%MCVERSION%",
+    "url": "https://github.com/RS485/ItemRenderer",
+    "updateUrl": "",
+    "authors": [ "RS485" ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "requiredMods": [
+        "Forge"
+    ],
+    "dependencies": [
+        "Forge"
+    ],
+    "dependants": [],
+    "useDependencyInformation": "true"
+  }]
+}
