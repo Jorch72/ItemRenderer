@@ -13,7 +13,6 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = "ItemRenderer", /* %------------CERTIFICATE-SUM-----------% */ version = "%VERSION%", useMetadata = true)
 public class ItemRenderer {
-
 	@Getter
 	@Instance("ItemRenderer")
 	private static ItemRenderer instance;

@@ -1,7 +1,12 @@
 package rs485.itemrenderer.asm;
 
+import rs485.itemrenderer.RenderClass;
+
 public class ASMHook {
 	public static void mainMenuButtonHook() {
-		System.out.println("Success");
+		RenderClass.textureWidth = 512;
+		RenderClass.textureHeight = 512;
+		RenderClass.imagePath = "G:/renders";
+		new RenderClass();
 	}
 }

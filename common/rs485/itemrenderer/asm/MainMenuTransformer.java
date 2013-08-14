@@ -2,13 +2,13 @@ package rs485.itemrenderer.asm;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+import static org.objectweb.asm.Opcodes.*;
 
 import java.util.ListIterator;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -50,67 +50,85 @@ public class MainMenuTransformer implements IClassTransformer {
 						public void visitLineNumber(int line, Label start) {
 							super.visitLineNumber(line, start);
 							if (line == 201) {
-								visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-								visitVarInsn(Opcodes.ALOAD, 0);
-								visitTypeInsn(Opcodes.NEW, "net/minecraft/client/gui/GuiButton");
-								visitInsn(Opcodes.DUP);
-								visitIntInsn(Opcodes.BIPUSH, 6);
-								visitVarInsn(Opcodes.ALOAD, 0);
+								visitFrame(F_SAME, 0, null, 0, null);
+								visitVarInsn(ALOAD, 0);
+								visitTypeInsn(NEW, "net/minecraft/client/gui/GuiButton");
+								visitInsn(DUP);
+								visitIntInsn(BIPUSH, 6);
+								visitVarInsn(ALOAD, 0);
 								try {
-									visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
+									visitFieldInsn(GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
 											SrgMapping.getInstance().translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiMainMenu", "width")[1],
 											"I");
 								} catch (MissingMappingException e) {
 									e.printStackTrace();
 								}
-								visitInsn(Opcodes.ICONST_2);
-								visitInsn(Opcodes.IDIV);
-								visitIntInsn(Opcodes.BIPUSH, 100);
-								visitInsn(Opcodes.ISUB);
-								visitVarInsn(Opcodes.ILOAD, 3);
-								visitIntInsn(Opcodes.BIPUSH, 48);
-								visitInsn(Opcodes.IADD);
-								visitIntInsn(Opcodes.BIPUSH, 98);
-								visitIntInsn(Opcodes.BIPUSH, 20);
+								visitInsn(ICONST_2);
+								visitInsn(IDIV);
+								visitIntInsn(BIPUSH, 100);
+								visitInsn(ISUB);
+								visitVarInsn(ILOAD, 3);
+								visitIntInsn(BIPUSH, 48);
+								visitInsn(IADD);
+								visitIntInsn(BIPUSH, 98);
+								visitIntInsn(BIPUSH, 20);
 								visitLdcInsn("Mods");
-								visitMethodInsn(Opcodes.INVOKESPECIAL, "net/minecraft/client/gui/GuiButton", "<init>", "(IIIIILjava/lang/String;)V");
-								visitFieldInsn(Opcodes.PUTFIELD, "net/minecraft/client/gui/GuiMainMenu", "fmlModButton",
+								visitMethodInsn(INVOKESPECIAL, "net/minecraft/client/gui/GuiButton", "<init>", "(IIIIILjava/lang/String;)V");
+								visitFieldInsn(PUTFIELD, "net/minecraft/client/gui/GuiMainMenu", "fmlModButton",
 										"Lnet/minecraft/client/gui/GuiButton;");
 								visitLabel(new Label());
-								// visitLineNumber(202, l28);
-								visitVarInsn(Opcodes.ALOAD, 0);
+								// visitLineNumber(202, ...);
+								visitTypeInsn(NEW, "net/minecraft/client/gui/GuiButton");
+								visitInsn(DUP);
+								visitIntInsn(SIPUSH, 1001);
+								visitVarInsn(ALOAD, 0);
 								try {
-									visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
+									visitFieldInsn(GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
+											SrgMapping.getInstance().translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiMainMenu", "width")[1],
+											"I");
+								} catch (MissingMappingException e) {
+									e.printStackTrace();
+								}
+								visitInsn(ICONST_2);
+								visitInsn(IDIV);
+								visitInsn(ICONST_2);
+								visitInsn(IADD);
+								visitVarInsn(ILOAD, 3);
+								visitIntInsn(BIPUSH, 48);
+								visitInsn(IADD);
+								visitIntInsn(BIPUSH, 98);
+								visitIntInsn(BIPUSH, 20);
+								visitLdcInsn("Make Images");
+								visitMethodInsn(INVOKESPECIAL, "net/minecraft/client/gui/GuiButton", "<init>", "(IIIIILjava/lang/String;)V");
+								visitVarInsn(ASTORE, 4);
+								if(!ASMSetup.isOpengl43()) {
+									visitLabel(new Label());
+									//visitLineNumber(203, ...);
+									visitVarInsn(ALOAD, 4);
+									visitInsn(ICONST_0);
+									try {
+										visitFieldInsn(PUTFIELD, "net/minecraft/client/gui/GuiButton",
+												SrgMapping.getInstance().translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiButton", "enabled")[1],
+												"Z");
+									} catch (MissingMappingException e) {
+										e.printStackTrace();
+									}
+								}
+								visitLabel(new Label());
+								//visitLineNumber(204, ...);
+								visitFrame(F_APPEND, 1, new Object[] {"net/minecraft/client/gui/GuiButton"}, 0, null);
+								visitVarInsn(ALOAD, 0);
+								try {
+									visitFieldInsn(GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
 											SrgMapping.getInstance()
 													.translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiMainMenu", "buttonList")[1],
 											"Ljava/util/List;");
 								} catch (MissingMappingException e) {
 									e.printStackTrace();
 								}
-								visitTypeInsn(Opcodes.NEW, "net/minecraft/client/gui/GuiButton");
-								visitInsn(Opcodes.DUP);
-								visitIntInsn(Opcodes.SIPUSH, 1001);
-								visitVarInsn(Opcodes.ALOAD, 0);
-								try {
-									visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
-											SrgMapping.getInstance().translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiMainMenu", "width")[1],
-											"I");
-								} catch (MissingMappingException e) {
-									e.printStackTrace();
-								}
-								visitInsn(Opcodes.ICONST_2);
-								visitInsn(Opcodes.IDIV);
-								visitInsn(Opcodes.ICONST_2);
-								visitInsn(Opcodes.IADD);
-								visitVarInsn(Opcodes.ILOAD, 3);
-								visitIntInsn(Opcodes.BIPUSH, 48);
-								visitInsn(Opcodes.IADD);
-								visitIntInsn(Opcodes.BIPUSH, 98);
-								visitIntInsn(Opcodes.BIPUSH, 20);
-								visitLdcInsn("Make Images");
-								visitMethodInsn(Opcodes.INVOKESPECIAL, "net/minecraft/client/gui/GuiButton", "<init>", "(IIIIILjava/lang/String;)V");
-								visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z");
-								visitInsn(Opcodes.POP);
+								visitVarInsn(ALOAD, 4);
+								visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z");
+								visitInsn(POP);
 							}
 						}
 					};
@@ -141,18 +159,18 @@ public class MainMenuTransformer implements IClassTransformer {
 						@Override
 						public void visitCode() {
 							visitLabel(new Label());
-							visitVarInsn(Opcodes.ALOAD, 1);
+							visitVarInsn(ALOAD, 1);
 							try {
-								visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiButton",
+								visitFieldInsn(GETFIELD, "net/minecraft/client/gui/GuiButton",
 										SrgMapping.getInstance().translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiButton", "id")[1], "I");
 							} catch (MissingMappingException e) {
 								e.printStackTrace();
 							}
-							visitIntInsn(Opcodes.SIPUSH, 1001);
+							visitIntInsn(SIPUSH, 1001);
 							Label l1 = new Label();
-							visitJumpInsn(Opcodes.IF_ICMPNE, l1);
+							visitJumpInsn(IF_ICMPNE, l1);
 							visitLabel(new Label());
-							visitMethodInsn(Opcodes.INVOKESTATIC, "rs485/itemrenderer/asm/ASMHook", "mainMenuButtonHook", "()V");
+							visitMethodInsn(INVOKESTATIC, "rs485/itemrenderer/asm/ASMHook", "mainMenuButtonHook", "()V");
 							visitLabel(l1);
 						}
 					};
