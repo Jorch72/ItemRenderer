@@ -1,0 +1,17 @@
+/.gradle
+/.settings
+/.classpath
+/.project
+/*.iml
+/*.ipr
+/*.iws
+/eclipse
+/build
+/bin
+/out
+
+# Ignore licenses, because everybody gets them on their own
+/MinecraftForge-License.txt
+/MinecraftForge-Credits.txt
+/LICENSE-fml.txt
+/CREDITS-fml.txt
