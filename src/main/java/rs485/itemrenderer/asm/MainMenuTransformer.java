@@ -1,28 +1,23 @@
 package rs485.itemrenderer.asm;
 
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraft.launchwrapper.IClassTransformer;
+import org.lwjgl.opengl.GLContext;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.*;
+import rs485.itemrenderer.MissingMappingException;
+import rs485.itemrenderer.SrgMapping;
+import rs485.itemrenderer.SrgMapping.MappingType;
+
+import java.util.ListIterator;
+
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
-import java.util.ListIterator;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodNode;
-
-import rs485.itemrenderer.MissingMappingException;
-import rs485.itemrenderer.SrgMapping;
-import rs485.itemrenderer.SrgMapping.MappingType;
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import cpw.mods.fml.relauncher.IClassTransformer;
-
 public class MainMenuTransformer implements IClassTransformer {
-
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] bytes) {
 		if (transformedName.endsWith("net.minecraft.client.gui.GuiMainMenu")) {
@@ -45,7 +40,7 @@ public class MainMenuTransformer implements IClassTransformer {
 					}
 				}
 				if ("initGui".equals(translatedName)) {
-					MethodNode newMethod = new MethodNode(mv.access, mv.name, mv.desc, mv.signature, mv.exceptions.toArray(new String[] {})) {
+					MethodNode newMethod = new MethodNode(mv.access, mv.name, mv.desc, mv.signature, mv.exceptions.toArray(new String[]{})) {
 						@Override
 						public void visitLineNumber(int line, Label start) {
 							super.visitLineNumber(line, start);
@@ -101,7 +96,7 @@ public class MainMenuTransformer implements IClassTransformer {
 								visitLdcInsn("Make Images");
 								visitMethodInsn(INVOKESPECIAL, "net/minecraft/client/gui/GuiButton", "<init>", "(IIIIILjava/lang/String;)V");
 								visitVarInsn(ASTORE, 4);
-								if(!ASMSetup.isOpengl43()) {
+								if (!GLContext.getCapabilities().OpenGL43) {
 									visitLabel(new Label());
 									//visitLineNumber(203, ...);
 									visitVarInsn(ALOAD, 4);
@@ -116,13 +111,14 @@ public class MainMenuTransformer implements IClassTransformer {
 								}
 								visitLabel(new Label());
 								//visitLineNumber(204, ...);
-								visitFrame(F_APPEND, 1, new Object[] {"net/minecraft/client/gui/GuiButton"}, 0, null);
+								visitFrame(F_APPEND, 1, new Object[]{"net/minecraft/client/gui/GuiButton"}, 0, null);
 								visitVarInsn(ALOAD, 0);
 								try {
 									visitFieldInsn(GETFIELD, "net/minecraft/client/gui/GuiMainMenu",
 											SrgMapping.getInstance()
 													.translateToSrg(MappingType.FIELD, "net/minecraft/client/gui/GuiMainMenu", "buttonList")[1],
-											"Ljava/util/List;");
+											"Ljava/util/List;"
+									);
 								} catch (MissingMappingException e) {
 									e.printStackTrace();
 								}
@@ -155,7 +151,7 @@ public class MainMenuTransformer implements IClassTransformer {
 					mv.accept(newMethod);
 					node.methods.set(node.methods.indexOf(mv), newMethod);
 				} else if ("actionPerformed".equals(translatedName)) {
-					MethodNode newMethod = new MethodNode(mv.access, mv.name, mv.desc, mv.signature, mv.exceptions.toArray(new String[] {})) {
+					MethodNode newMethod = new MethodNode(mv.access, mv.name, mv.desc, mv.signature, mv.exceptions.toArray(new String[]{})) {
 						@Override
 						public void visitCode() {
 							visitLabel(new Label());

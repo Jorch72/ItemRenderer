@@ -1,162 +1,146 @@
 package rs485.itemrenderer;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL14.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL21.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL31.*;
-import static org.lwjgl.opengl.GL32.*;
-import static org.lwjgl.opengl.GL33.*;
-import static org.lwjgl.opengl.GL40.*;
-import static org.lwjgl.opengl.GL41.*;
-import static org.lwjgl.opengl.GL42.*;
-import static org.lwjgl.opengl.GL43.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.*;
 
-import java.awt.Color;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.FileSystem;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
-import javax.imageio.ImageIO;
-
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.*;
-
-import com.google.common.io.Files;
-
-import rs485.itemrenderer.asm.ASMSetup;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.GL_RESCALE_NORMAL;
+import static org.lwjgl.opengl.GL30.*;
 
 public class RenderClass {
 	public static String imagePath;
 	public static int textureWidth;
 	public static int textureHeight;
 
-	private static final String[] blockedItemsList = new String[] {};
+	private static final String[] blockedItemsList = new String[]{};
 
 	private static final int BYTES_PER_PIXEL = 4;
 	private static final boolean isFramebufferEnabled = true;
 
-	private static int mcCanvasWidth;
-	private static int mcCanvasHeight;
+	//private static int mcCanvasWidth;
+	//private static int mcCanvasHeight;
 
 	private int fbObject;
 	private int fbRenderbuffer;
 	private int fbColorTex;
 
 	public RenderClass() {
-		if (ASMSetup.isOpengl43()) {
+		if (GLContext.getCapabilities().OpenGL43) {
 			Minecraft mc = Minecraft.getMinecraft();
 
-			mcCanvasWidth = mc.mcCanvas.getWidth();
-			mcCanvasHeight = mc.mcCanvas.getHeight();
+			//mcCanvasWidth = mc.mcCanvas.getWidth();
+			//mcCanvasHeight = mc.mcCanvas.getHeight();
 			int sWidth = Math.max(1024, textureWidth);
 			int sHeight = textureHeight;
 
-			if (mcCanvasWidth != sWidth && mcCanvasHeight != sHeight) {
-				mc.mcCanvas.setSize(sWidth, sHeight);
-			} else {
-				File imagesFolder = new File(imagePath);
-				if (imagesFolder.exists()) {
-					for (File file : imagesFolder.listFiles())
-						file.delete();
-				}
-				imagesFolder.mkdirs();
-				if (!imagesFolder.exists()) {
-					System.out.println("There were problems creating the folders to " + imagePath);
-				}
+			//if (mcCanvasWidth != sWidth && mcCanvasHeight != sHeight) {
+			//mc.mcCanvas.setSize(sWidth, sHeight);
+			//} else {
+			File imagesFolder = new File(imagePath);
+			if (imagesFolder.exists()) {
+				for (File file : imagesFolder.listFiles())
+					file.delete();
+			}
+			imagesFolder.mkdirs();
+			if (!imagesFolder.exists()) {
+				System.out.println("There were problems creating the folders to " + imagePath);
+			}
 
-				// Check if GL is error clean
-				checkGL();
+			// Check if GL is error clean
+			checkGL();
 
-				if (isFramebufferEnabled) {
-					// Setup function for the frame buffer object
-					framebufferSetup();
-				}
+			if (isFramebufferEnabled) {
+				// Setup function for the frame buffer object
+				framebufferSetup();
+			}
 
-				oglSetup();
+			oglSetup();
 
-				RenderItem itemRenderer = new RenderItem();
+			RenderItem itemRenderer = new RenderItem();
 
-				long start = System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 
-				ItemStack itemstack = null;
+			ItemStack itemstack = null;
 
-				try {
-					for (int itemID = 0; itemID < Item.itemsList.length; itemID++) {
-						Item item = Item.itemsList[itemID];
-						if (item == null) {
-							continue;
-						}
+			try {
+				String itemName = null;
+				for (Iterator itemIterator = Item.itemRegistry.iterator(); itemIterator.hasNext(); itemName = (String) itemIterator.next()) {
+					if (itemName == null) {
+						ItemRenderer.getInstance().getModLogger().warn("Iterator gave me null");
+						continue;
+					}
+					Item item = (Item) Item.itemRegistry.getObject(itemName);
 
-						System.out.println("Item " + itemID);
+					if (item == null) {
+						ItemRenderer.getInstance().getModLogger().warn("Iterator gave me %s, but Item is null", itemName);
+						continue;
+					}
 
-						ArrayList<ItemStack> sublist = new ArrayList<ItemStack>();
-						item.getSubItems(itemID, null, sublist);
-						for (ItemStack damagedItemstack : sublist) {
-							System.out.println("  Subitem [" + damagedItemstack.getItemDamage() + "]: " + getUnifiedItemName(damagedItemstack));
+					System.out.println("Item " + itemName);
 
-							try {
+					ArrayList<ItemStack> sublist = new ArrayList<ItemStack>();
+					item.getSubItems(item, null, sublist);
+					for (ItemStack damagedItemstack : sublist) {
+						System.out.println("  Subitem [" + damagedItemstack.getItemDamage() + "]: " + getUnifiedItemName(damagedItemstack));
+
+						try {
+							if (renderItemSafe(mc, itemRenderer, damagedItemstack)) {
+								writeImage(imagesFolder, getUnifiedItemName(damagedItemstack));
+							} else {
+								System.out.println("    Skipped...");
+							}
+						} catch (OpenGLException e) {
+							if (e.getMessage().equals("Stack overflow (1283)")) {
+								if (isFramebufferEnabled) {
+									framebufferClean();
+									framebufferSetup();
+								}
+								oglSetup();
+								System.out.println("Re-setup on stack overflow");
 								if (renderItemSafe(mc, itemRenderer, damagedItemstack)) {
 									writeImage(imagesFolder, getUnifiedItemName(damagedItemstack));
 								} else {
 									System.out.println("    Skipped...");
 								}
-							} catch (OpenGLException e) {
-								if (e.getMessage().equals("Stack overflow (1283)")) {
-									if (isFramebufferEnabled) {
-										framebufferClean();
-										framebufferSetup();
-									}
-									oglSetup();
-									System.out.println("Re-setup on stack overflow");
-									if (renderItemSafe(mc, itemRenderer, damagedItemstack)) {
-										writeImage(imagesFolder, getUnifiedItemName(damagedItemstack));
-									} else {
-										System.out.println("    Skipped...");
-									}
-								} else {
-									throw e;
-								}
+							} else {
+								throw e;
 							}
-
-							clearToTransparency();
 						}
+
+						clearToTransparency();
 					}
-				} catch (Throwable e) {
-					e.printStackTrace();
 				}
-
-				System.out.println("Took " + (System.currentTimeMillis() - start) + "ms to render");
-
-				// glPopMatrix();
-				checkGL();
-
-				RenderHelper.disableStandardItemLighting();
-
-				if (isFramebufferEnabled) {
-					framebufferClean();
-				}
-				mc.mcCanvas.setSize(mcCanvasWidth, mcCanvasHeight);
+			} catch (Throwable e) {
+				e.printStackTrace();
 			}
+
+			System.out.println("Took " + (System.currentTimeMillis() - start) + "ms to render");
+
+			// glPopMatrix();
+			checkGL();
+
+			RenderHelper.disableStandardItemLighting();
+
+			if (isFramebufferEnabled) {
+				framebufferClean();
+			}
+			//mc.mcCanvas.setSize(mcCanvasWidth, mcCanvasHeight);
+			//}
 		}
 	}
 
@@ -197,10 +181,7 @@ public class RenderClass {
 	private String getUnifiedItemName(ItemStack itemstack) {
 		String displayName = itemstack.getDisplayName();
 		if (displayName.isEmpty()) {
-			displayName = itemstack.getItemName().replaceAll("^tile\\.", "");
-		}
-		if (displayName.isEmpty()) {
-			displayName = itemstack.itemID + ":" + itemstack.getItemDamage();
+			displayName = itemstack.getItem().getUnlocalizedName().replaceAll("^tile\\.", "");
 		}
 		return "Item " + displayName;
 	}
@@ -300,33 +281,16 @@ public class RenderClass {
 			renderItem(mc, itemRenderer, itemstack);
 		} catch (NullPointerException e) {
 			// Reset Tessellator
-			Tessellator.instance = new Tessellator();
+			//Tessellator.instance = new Tessellator();
 
-			try {
-				System.out.println("Could not render item " + getUnifiedItemName(itemstack));
-			} catch (Throwable e2) {
-			}
+			System.out.println("Could not render item " + getUnifiedItemName(itemstack));
+			success = false;
 		} catch (OpenGLException e) {
 			// Reset Tessellator
-			Tessellator.instance = new Tessellator();
+			//Tessellator.instance = new Tessellator();
 
-			System.out.println("Unrenderable item ");
-			try {
-				System.out.println(itemstack.getItemName());
-			} catch (Throwable e2) {
-				System.out.println(itemstack.toString());
-			}
+			System.out.println("Unrenderable item " + getUnifiedItemName(itemstack));
 			throw e;
-		} catch (Throwable e) {
-			// Reset Tessellator
-			Tessellator.instance = new Tessellator();
-
-			try {
-				System.err.println("Got a problem rendering " + getUnifiedItemName(itemstack));
-			} catch (Throwable e2) {
-			}
-			e.printStackTrace();
-			success = false;
 		}
 
 		glPopMatrix();
@@ -337,7 +301,7 @@ public class RenderClass {
 
 	private boolean isItemstackBlocked(ItemStack itemstack) {
 		for (int i = 0; i < blockedItemsList.length; i++) {
-			if (blockedItemsList[i].equalsIgnoreCase(itemstack.getItemName())) {
+			if (blockedItemsList[i].equalsIgnoreCase(itemstack.getDisplayName())) {
 				return true;
 			}
 		}
@@ -479,8 +443,7 @@ public class RenderClass {
 	}
 	*/
 
-	static void checkGL()
-	{
+	static void checkGL() {
 		final int e = glGetError();
 		if (e != GL_NO_ERROR) {
 			throw new OpenGLException(e);
